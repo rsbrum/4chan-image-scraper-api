@@ -26,7 +26,7 @@ def getImages():
 
 
 @app.route('/')
-def getImages():
+def hello():
     return 'hello'
 
 
