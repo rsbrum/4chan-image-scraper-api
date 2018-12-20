@@ -25,6 +25,11 @@ def getImages():
     return response
 
 
+@app.route('/')
+def getImages():
+    return 'hello'
+
+
 # If we're running in stand alone mode, run the application
 if __name__ == '__main__':
     app.run(debug=True)
