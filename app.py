@@ -6,37 +6,37 @@ from bs4 import BeautifulSoup
 
 class Scraper:
 
-
     def __init__(self, url):
         content = self.getContent(url)
         self.dir = ""
 
         if not content:
             raise Exception('Invalid URL')
-            return -1
 
         links = self.getLinks(content)
 
-        if len(links) == 0:
-            raise Exception('No images to download!')
-            return -1; 
+        if len(links) == 0 or links == False:
+            raise Exception('Cant get image links!')
 
         self.downloadImages(links)
 
 
-    @staticmethod
-    def getContent(url):
+    def getContent(self, url):
         try:
             return requests.get(url)
-        except Exception as e :
+        except:
             return False
 
 
-    @staticmethod
-    def getLinks(content):
-        content = BeautifulSoup(content.content)
+    def getLinks(self, soup):
+        content = BeautifulSoup(soup.content)
         links = list()
-        elements = content.find_all('a', {'class': 'fileThumb'})
+
+        try:
+            elements = content.find_all('a', {'class': 'fileThumb'})
+        except: 
+            return False
+            
 
         for link in elements:
             temp = BeautifulSoup(str(link))
@@ -61,8 +61,7 @@ class Scraper:
             x += 1
             ext = 'jpg'
             try:
-                linkExt = link[-3] + link[-2] + link[-1]
-                print(linkExt) 
+                linkExt = link[-3] + link[-2] + link[-1] 
 
                 if linkExt == 'gif':
                     ext = 'gif'
@@ -73,15 +72,21 @@ class Scraper:
                     handler.write(img_data)
 
                 ext = 'png'
-            except Exception as e :
+            except:
                 print('Failed to get image')
 
         zf = zipfile.ZipFile("imageszip" + str(n) + ".zip", "w")
+
+        if not zf:
+            raise Exception('Failed to create zip')
+
         for dirname, subdirs, files in os.walk(self.dir):
             zf.write(dirname)
             for filename in files:
                 zf.write(os.path.join(dirname, filename))
+
         zf.close()
+
         shutil.rmtree('dir' + str(n))
         self.dir = "imageszip" + str(n)
 
